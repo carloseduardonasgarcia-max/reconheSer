@@ -1,8 +1,9 @@
+import os
+import random
 from flask import Flask, render_template, jsonify, request, session
-import json
 
 app = Flask(__name__)
-app.secret_key = 'reconheser-secret-2025'
+app.secret_key = os.environ.get('SECRET_KEY', 'reconheser-secret-2025')
 
 @app.route('/')
 def onboarding():
@@ -43,8 +44,7 @@ def get_phrase():
         "Seu jeito de ser é válido e precioso.",
         "Você pertence a este espaço."
     ]
-    import random
     return jsonify({'phrase': random.choice(phrases)})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
