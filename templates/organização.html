@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ReconheSER — Organização</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .topbar { display: flex; align-items: center; gap: 12px; padding: 16px 20px 4px; }
+    .back-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--surface); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-primary); }
+    .topbar-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); flex: 1; }
+    .add-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--blue-500); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; box-shadow: var(--shadow-sm); }
+    .day-strip { display: flex; gap: 8px; padding: 16px 24px 0; overflow-x: auto; scrollbar-width: none; }
+    .day-strip::-webkit-scrollbar { display: none; }
+    .day-chip { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; padding: 10px 14px; border-radius: var(--radius-lg); cursor: pointer; transition: var(--transition-fast); border: 2px solid transparent; }
+    .day-chip.active { background: var(--blue-500); }
+    .day-chip:not(.active):hover { background: var(--blue-50); border-color: var(--blue-100); }
+    .day-name { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); }
+    .day-num { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); }
+    .day-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--blue-300); }
+    .day-chip.active .day-name, .day-chip.active .day-num { color: white; }
+    .day-chip.active .day-dot { background: rgba(255,255,255,0.7); }
+    .timeline { padding: 20px 24px 0; position: relative; }
+    .timeline::before { content: ''; position: absolute; left: 46px; top: 20px; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--blue-200), transparent); }
+    .time-block { display: flex; gap: 14px; margin-bottom: 18px; position: relative; }
+    .time-label { width: 44px; font-size: 0.72rem; color: var(--text-muted); font-weight: 600; padding-top: 14px; text-align: right; flex-shrink: 0; }
+    .time-node { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--blue-300); background: white; margin-top: 17px; flex-shrink: 0; }
+    .time-node.done { background: var(--blue-400); border-color: var(--blue-400); }
+    .time-node.now { background: var(--blue-500); border-color: var(--blue-500); box-shadow: 0 0 0 4px rgba(90,163,230,0.2); }
+    .task-item { flex: 1; background: var(--white); border-radius: var(--radius-lg); padding: 14px 16px; box-shadow: var(--shadow-sm); border: 1px solid rgba(138,192,240,0.15); display: flex; align-items: center; gap: 12px; cursor: pointer; transition: var(--transition-fast); }
+    .task-item:hover { box-shadow: var(--shadow-md); }
+    .task-item.done-task { opacity: 0.65; }
+    .task-item.done-task .task-title { text-decoration: line-through; }
+    .task-emoji { font-size: 1.3rem; flex-shrink: 0; }
+    .task-info { flex: 1; }
+    .task-title { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); display: block; margin-bottom: 2px; }
+    .task-sub { font-size: 0.76rem; color: var(--text-muted); }
+    .task-pill { font-size: 0.7rem; padding: 3px 10px; border-radius: var(--radius-full); font-weight: 600; white-space: nowrap; }
+    .pill-blue { background: var(--blue-50); color: var(--blue-500); }
+    .pill-green { background: rgba(52,199,89,0.1); color: #1e8a3c; }
+    .pill-orange { background: rgba(255,149,0,0.1); color: #b35900; }
+    .now-line { display: flex; align-items: center; gap: 8px; margin: 0 0 18px; padding-left: 58px; }
+    .now-badge { font-size: 0.72rem; font-weight: 700; color: var(--blue-500); background: var(--blue-50); border-radius: var(--radius-full); padding: 2px 10px; }
+    .now-line-rule { flex: 1; height: 1px; background: var(--blue-200); }
+    .reminder-section { padding: 20px 24px 0; }
+    .reminder-card { display: flex; align-items: center; gap: 12px; background: linear-gradient(135deg, var(--blue-50), var(--blue-100)); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: var(--transition-fast); }
+    .reminder-card:hover { background: linear-gradient(135deg,var(--blue-100),var(--blue-200)); }
+    .reminder-icon { font-size: 1.4rem; }
+    .reminder-info { flex: 1; }
+    .reminder-title { font-size: 0.88rem; font-weight: 600; color: var(--text-primary); display: block; }
+    .reminder-time { font-size: 0.76rem; color: var(--blue-600); }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(14,42,77,0.6); z-index: 300; display: none; align-items: flex-end; justify-content: center; }
+    .modal-sheet { background: var(--white); border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: 24px; width: 100%; max-width: 430px; animation: slideUp 0.3s ease; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal-handle { width: 40px; height: 4px; background: var(--blue-100); border-radius: 2px; margin: 0 auto 20px; }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="blob-bg blob-2" style="opacity:0.4;"></div>
+  <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+
+  <div class="topbar fade-up">
+    <button class="back-btn" onclick="window.location='/home'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <span class="topbar-title">Organização pessoal</span>
+    <button class="add-btn" onclick="openModal()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+  </div>
+
+  <div class="page-content">
+    <div style="padding:12px 24px 0;" class="fade-up fade-up-1">
+      <h2 style="font-size:1.35rem;">Sua rotina,<br><em style="color:var(--blue-500);font-style:italic;">do seu jeito.</em></h2>
+    </div>
+
+    <div class="day-strip fade-up fade-up-2">
+      <div class="day-chip" onclick="selectDay(this)"><span class="day-name">Dom</span><span class="day-num">25</span><div class="day-dot"></div></div>
+      <div class="day-chip" onclick="selectDay(this)"><span class="day-name">Seg</span><span class="day-num">26</span></div>
+      <div class="day-chip" onclick="selectDay(this)"><span class="day-name">Ter</span><span class="day-num">27</span><div class="day-dot"></div></div>
+      <div class="day-chip" onclick="selectDay(this)"><span class="day-name">Qua</span><span class="day-num">28</span></div>
+      <div class="day-chip active" onclick="selectDay(this)"><span class="day-name">Qui</span><span class="day-num">29</span><div class="day-dot"></div></div>
+      <div class="day-chip" onclick="selectDay(this)"><span class="day-name">Sex</span><span class="day-num">30</span></div>
+      <div class="day-chip" onclick="selectDay(this)"><span class="day-name">Sáb</span><span class="day-num">31</span></div>
+    </div>
+
+    <div class="timeline fade-up fade-up-3">
+      <div class="time-block">
+        <div class="time-label">7h</div>
+        <div class="time-node done"></div>
+        <div class="task-item done-task" onclick="toggleTask(this)">
+          <span class="task-emoji">☀️</span>
+          <div class="task-info"><span class="task-title">Acordar e respirar</span><span class="task-sub">3 respirações conscientes</span></div>
+          <span class="task-pill pill-green">Feito</span>
+        </div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">8h</div>
+        <div class="time-node done"></div>
+        <div class="task-item done-task" onclick="toggleTask(this)">
+          <span class="task-emoji">🍃</span>
+          <div class="task-info"><span class="task-title">Café da manhã tranquilo</span><span class="task-sub">Sem telas no café</span></div>
+          <span class="task-pill pill-green">Feito</span>
+        </div>
+      </div>
+
+      <div class="now-line">
+        <div class="now-badge">● Agora · 9h41</div>
+        <div class="now-line-rule"></div>
+      </div>
+
+      <div class="time-block">
+        <div class="time-label">10h</div>
+        <div class="time-node now"></div>
+        <div class="task-item" onclick="toggleTask(this)">
+          <span class="task-emoji">📚</span>
+          <div class="task-info"><span class="task-title">Leitura do ReconheSER</span><span class="task-sub">Conteúdo: autoestima</span></div>
+          <span class="task-pill pill-blue">10 min</span>
+        </div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">12h</div>
+        <div class="time-node"></div>
+        <div class="task-item" onclick="toggleTask(this)">
+          <span class="task-emoji">🍽️</span>
+          <div class="task-info"><span class="task-title">Almoço com calma</span><span class="task-sub">Sem pressa, saboreie</span></div>
+          <span class="task-pill pill-blue">Rotina</span>
+        </div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">14h</div>
+        <div class="time-node"></div>
+        <div class="task-item" onclick="toggleTask(this)">
+          <span class="task-emoji">🧘</span>
+          <div class="task-info"><span class="task-title">Pausa sensorial</span><span class="task-sub">5 minutos de silêncio</span></div>
+          <span class="task-pill pill-orange">5 min</span>
+        </div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">16h</div>
+        <div class="time-node"></div>
+        <div class="task-item" onclick="toggleTask(this)">
+          <span class="task-emoji">🪞</span>
+          <div class="task-info"><span class="task-title">Reflexão do dia</span><span class="task-sub">Escrever no diário</span></div>
+          <span class="task-pill pill-blue">10 min</span>
+        </div>
+      </div>
+      <div class="time-block">
+        <div class="time-label">21h</div>
+        <div class="time-node"></div>
+        <div class="task-item" onclick="toggleTask(this)">
+          <span class="task-emoji">🌙</span>
+          <div class="task-info"><span class="task-title">Ritual de dormir</span><span class="task-sub">Modo noturno ativado</span></div>
+          <span class="task-pill pill-blue">Rotina</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reminder-section fade-up fade-up-4">
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;">Lembretes gentis</div>
+      <div class="reminder-card">
+        <span class="reminder-icon">💧</span>
+        <div class="reminder-info"><span class="reminder-title">Beber água</span><span class="reminder-time">A cada 2 horas</span></div>
+        <label class="toggle" style="scale:0.85;"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div class="reminder-card">
+        <span class="reminder-icon">🌬️</span>
+        <div class="reminder-info"><span class="reminder-title">Pausa para respirar</span><span class="reminder-time">A cada 90 minutos</span></div>
+        <label class="toggle" style="scale:0.85;"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div class="reminder-card">
+        <span class="reminder-icon">📱</span>
+        <div class="reminder-info"><span class="reminder-title">Pausa de tela</span><span class="reminder-time">Às 20h</span></div>
+        <label class="toggle" style="scale:0.85;"><input type="checkbox"><span class="toggle-slider"></span></label>
+      </div>
+    </div>
+    <div style="height:16px;"></div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <h3 style="margin-bottom:18px; font-size:1.1rem;">Nova atividade</h3>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <input type="text" placeholder="Nome da atividade..." id="new-task-name">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <input type="time" id="new-task-time" value="10:00">
+          <select id="new-task-type"><option>Rotina</option><option>Lembrete</option><option>Cuidado</option><option>Lazer</option></select>
+        </div>
+        <button class="btn btn-primary" onclick="addTask()">Adicionar</button>
+        <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="/home" class="nav-item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Início</a>
+    <a href="/autorreflexao" class="nav-item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Refletir</a>
+    <a href="/organizacao" class="nav-item active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Rotina</a>
+    <a href="/conteudos" class="nav-item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Conteúdos</a>
+    <a href="/adaptacao" class="nav-item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07M4.93 4.93a10 10 0 0 0 0 14.14M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>Adaptar</a>
+  </nav>
+</div>
+
+<script>
+function selectDay(el) {
+  document.querySelectorAll('.day-chip').forEach(d => d.classList.remove('active'));
+  el.classList.add('active');
+}
+function toggleTask(el) {
+  el.classList.toggle('done-task');
+  const pill = el.querySelector('.task-pill');
+  if (el.classList.contains('done-task')) { pill.textContent = 'Feito'; pill.className = 'task-pill pill-green'; }
+  else { pill.textContent = 'Pendente'; pill.className = 'task-pill pill-blue'; }
+}
+function openModal() { document.getElementById('modal-overlay').style.display = 'flex'; }
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modal-overlay'))
+    document.getElementById('modal-overlay').style.display = 'none';
+}
+function addTask() {
+  const name = document.getElementById('new-task-name').value.trim();
+  if (!name) return;
+  closeModal();
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#2368b0;color:white;padding:10px 22px;border-radius:99px;font-size:0.88rem;font-family:DM Sans,sans-serif;z-index:999;';
+  toast.textContent = '✓ Atividade adicionada!';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+}
+</script>
+</body>
+</html>
