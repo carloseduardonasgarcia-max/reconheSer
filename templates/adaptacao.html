@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ReconheSER — Adaptar Experiência</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .settings-group { padding: 20px 24px; }
+    .settings-group + .settings-group { border-top: 1px solid var(--blue-100); }
+    .group-label {
+      font-size: 0.72rem; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;
+    }
+    .setting-row {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; margin-bottom: 22px;
+    }
+    .setting-row:last-child { margin-bottom: 0; }
+    .setting-info { flex: 1; }
+    .setting-info strong { display: block; font-size: 0.95rem; color: var(--text-primary); font-weight: 500; margin-bottom: 2px; }
+    .setting-info span { font-size: 0.8rem; color: var(--text-muted); }
+    .setting-full { margin-bottom: 22px; }
+    .setting-full:last-child { margin-bottom: 0; }
+    .setting-full .setting-info { margin-bottom: 12px; }
+    .setting-full .range-wrap { display: flex; align-items: center; gap: 12px; }
+    .setting-full input[type=range] { flex: 1; }
+    .range-value { font-size: 0.82rem; font-weight: 600; color: var(--blue-500); min-width: 32px; text-align: right; }
+    .preview-banner {
+      margin: 0 24px;
+      background: linear-gradient(135deg, var(--blue-50), var(--blue-100));
+      border-radius: var(--radius-lg); padding: 18px 20px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .preview-icon { font-size: 2rem; flex-shrink: 0; }
+    .preview-text strong { display: block; font-size: 0.95rem; color: var(--blue-700); margin-bottom: 2px; }
+    .preview-text p { font-size: 0.82rem; color: var(--blue-600); }
+    .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .mode-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      background: var(--surface); border: 2px solid transparent;
+      border-radius: var(--radius-lg); padding: 18px 12px;
+      cursor: pointer; transition: var(--transition-fast);
+      font-family: var(--font-body); font-size: 0.82rem;
+      color: var(--text-secondary); font-weight: 500;
+    }
+    .mode-btn:hover, .mode-btn.active {
+      background: var(--blue-50); border-color: var(--blue-300); color: var(--blue-600);
+    }
+    .mode-btn .mode-icon { font-size: 1.6rem; }
+    .topbar { display: flex; align-items: center; gap: 12px; padding: 16px 20px 8px; }
+    .back-btn {
+      width: 40px; height: 40px; border-radius: 50%; background: var(--surface);
+      border: none; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text-primary); flex-shrink: 0; transition: var(--transition-fast);
+    }
+    .back-btn:hover { background: var(--blue-50); }
+    .topbar-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+    #sensory-indicator {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--blue-500); flex-shrink: 0; transition: var(--transition);
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="blob-bg blob-1" style="opacity:0.6;"></div>
+
+  <div class="status-bar">
+    <span>9:41</span>
+    <span>●●●</span>
+  </div>
+
+  <div class="topbar fade-up">
+    <button class="back-btn" onclick="history.back()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <span class="topbar-title">Adaptar minha experiência</span>
+  </div>
+
+  <div class="page-content">
+
+    <div style="padding: 12px 24px 20px;">
+      <h2 class="fade-up fade-up-1" style="font-size:1.4rem; margin-bottom:6px;">Seu conforto,<br><span style="color:var(--blue-500);font-style:italic;">suas regras.</span></h2>
+      <p class="fade-up fade-up-2" style="font-size:0.88rem;">Ajuste como quiser — tudo pode ser alterado a qualquer momento.</p>
+    </div>
+
+    <div class="preview-banner fade-up fade-up-2" style="margin-bottom:24px;">
+      <div class="preview-icon">✨</div>
+      <div class="preview-text">
+        <strong>Visualização em tempo real</strong>
+        <p>As mudanças são aplicadas enquanto você ajusta.</p>
+      </div>
+    </div>
+
+    <!-- Ajustes visuais -->
+    <div class="settings-group fade-up fade-up-3">
+      <div class="group-label">👁️ Ajustes visuais</div>
+
+      <div class="setting-full">
+        <div class="setting-info">
+          <strong>Brilho da tela</strong>
+          <span>Ajuste para seu nível de conforto</span>
+        </div>
+        <div class="range-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <input type="range" id="brightness" min="40" max="100" value="100" oninput="applyBrightness(this.value)">
+          <span class="range-value" id="brightness-val">100%</span>
+        </div>
+      </div>
+
+      <div class="setting-full">
+        <div class="setting-info">
+          <strong>Tamanho das letras</strong>
+          <span>Aumente se preferir textos maiores</span>
+        </div>
+        <div class="range-wrap">
+          <span style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">A</span>
+          <input type="range" id="fontsize" min="80" max="130" value="100" oninput="applyFontScale(this.value)">
+          <span style="font-size:1.1rem;color:var(--text-muted);font-weight:600;">A</span>
+          <span class="range-value" id="font-val">100%</span>
+        </div>
+      </div>
+
+      <div class="setting-full">
+        <div class="setting-info">
+          <strong>Contraste</strong>
+          <span>Maior contraste facilita a leitura</span>
+        </div>
+        <div class="range-wrap">
+          <input type="range" id="contrast-range" min="80" max="140" value="100" oninput="applyContrast(this.value)">
+          <span class="range-value" id="contrast-val">100%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modo sensorial -->
+    <div class="settings-group fade-up fade-up-4">
+      <div class="group-label">🧘 Modo sensorial</div>
+      <div class="mode-grid">
+        <button class="mode-btn active" onclick="setMode(this,'calmo')">
+          <span class="mode-icon">😌</span>Calmo
+        </button>
+        <button class="mode-btn" onclick="setMode(this,'reduzido')">
+          <span class="mode-icon">🌙</span>Reduzido
+        </button>
+        <button class="mode-btn" onclick="setMode(this,'foco')">
+          <span class="mode-icon">🎯</span>Foco
+        </button>
+        <button class="mode-btn" onclick="setMode(this,'padrao')">
+          <span class="mode-icon">✦</span>Padrão
+        </button>
+      </div>
+    </div>
+
+    <!-- Áudio e tato -->
+    <div class="settings-group fade-up fade-up-4">
+      <div class="group-label">🔊 Áudio e tato</div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <strong>Sons de interface</strong>
+          <span>Feedback sonoro suave</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-sound" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-full">
+        <div class="setting-info" style="margin-bottom:10px;">
+          <strong>Volume dos sons</strong>
+          <span>Sons suaves de navegação</span>
+        </div>
+        <div class="range-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/></svg>
+          <input type="range" id="volume" min="0" max="100" value="60">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          <span class="range-value" id="vol-val">60%</span>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <strong>Vibração háptica</strong>
+          <span>Feedback por vibração</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-haptic">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Acessibilidade -->
+    <div class="settings-group fade-up fade-up-5">
+      <div class="group-label">♿ Acessibilidade</div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <strong>Leitura de tela</strong>
+          <span>Compatível com leitores de tela</span>
+        </div>
+        <div id="sensory-indicator"></div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <strong>Animações reduzidas</strong>
+          <span>Menos movimento na interface</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-anim" onchange="toggleAnimations(this)">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <strong>Pausas automáticas</strong>
+          <span>Lembretes para respirar</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-pause" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div style="padding: 24px 24px 0;">
+      <a href="/home" class="btn btn-primary fade-up fade-up-5">
+        Salvar e continuar
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <a href="/home" class="nav-item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Início
+    </a>
+    <a href="/autorreflexao" class="nav-item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Refletir
+    </a>
+    <a href="/organizacao" class="nav-item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Rotina
+    </a>
+    <a href="/conteudos" class="nav-item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4
