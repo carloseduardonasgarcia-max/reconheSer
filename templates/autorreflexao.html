@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ReconheSER — Autorreflexão</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .reflect-header { padding: 20px 24px 0; }
+    .emotion-section { padding: 20px 24px 0; }
+    .emotion-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .question-card { margin: 20px 24px 0; background: linear-gradient(135deg, var(--blue-50), var(--blue-100)); border-radius: var(--radius-lg); padding: 20px; }
+    .question-number { font-size: 0.72rem; font-weight: 700; color: var(--blue-400); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .question-text { font-family: var(--font-display); font-size: 1.15rem; color: var(--text-primary); line-height: 1.4; margin-bottom: 16px; }
+    .question-nav { display: flex; gap: 8px; align-items: center; }
+    .q-btn { width: 34px; height: 34px; border-radius: 50%; border: none; background: var(--white); color: var(--blue-500); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow-sm); transition: var(--transition-fast); }
+    .q-btn:hover { background: var(--blue-50); }
+    .q-progress-text { font-size: 0.78rem; color: var(--text-muted); flex: 1; text-align: right; }
+    .writing-section { padding: 20px 24px 0; }
+    .writing-label { font-size: 0.82rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+    .writing-area { position: relative; }
+    textarea#journal { min-height: 140px; border-radius: var(--radius-lg); padding: 18px; font-size: 0.95rem; line-height: 1.8; background: var(--surface); border: 1.5px solid var(--blue-100); }
+    .word-count { position: absolute; bottom: 12px; right: 14px; font-size: 0.72rem; color: var(--text-muted); }
+    .prompts-row { display: flex; gap: 8px; overflow-x: auto; padding: 12px 24px 0; scrollbar-width: none; }
+    .prompts-row::-webkit-scrollbar { display: none; }
+    .prompt-chip { flex-shrink: 0; background: var(--white); border: 1.5px solid var(--blue-100); border-radius: var(--radius-full); padding: 7px 14px; font-size: 0.78rem; color: var(--blue-600); cursor: pointer; white-space: nowrap; transition: var(--transition-fast); font-family: var(--font-body); }
+    .prompt-chip:hover { background: var(--blue-50); border-color: var(--blue-300); }
+    .exercise-section { padding: 20px 24px 0; }
+    .exercise-card { display: flex; align-items: center; gap: 14px; background: var(--white); border-radius: var(--radius-lg); padding: 18px; box-shadow: var(--shadow-sm); border: 1px solid rgba(138,192,240,0.15); margin-bottom: 12px; cursor: pointer; transition: var(--transition); }
+    .exercise-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .ex-icon { width: 46px; height: 46px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+    .ex-blue { background: rgba(90,163,230,0.12); }
+    .ex-indigo { background: rgba(26,79,138,0.1); }
+    .ex-teal { background: rgba(138,192,240,0.2); }
+    .ex-info { flex: 1; }
+    .ex-title { font-size: 0.92rem; font-weight: 600; color: var(--text-primary); display: block; margin-bottom: 2px; }
+    .ex-sub { font-size: 0.78rem; color: var(--text-muted); }
+    .ex-dur { font-size: 0.72rem; padding: 3px 10px; border-radius: var(--radius-full); background: var(--blue-50); color: var(--blue-500); font-weight: 600; white-space: nowrap; }
+    .save-row { padding: 20px 24px 0; display: flex; gap: 10px; }
+    .btn-save { flex: 1; }
+    .btn-clear { background: var(--surface); color: var(--text-muted); border: none; border-radius: var(--radius-full); padding: 14px 18px; font-family: var(--font-body); cursor: pointer; font-size: 0.88rem; transition: var(--transition-fast); }
+    .btn-clear:hover { background: var(--blue-50); color: var(--blue-500); }
+    .topbar { display: flex; align-items: center; gap: 12px; padding: 16px 20px 4px; }
+    .back-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--surface); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-primary); flex-shrink: 0; }
+    .topbar-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="blob-bg blob-1" style="opacity:0.4;"></div>
+  <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+
+  <div class="topbar fade-up">
+    <button class="back-btn" onclick="window.location='/home'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <span class="topbar-title">Autorreflexão</span>
+  </div>
+
+  <div class="page-content">
+
+    <div class="reflect-header fade-up fade-up-1">
+      <h2 style="font-size:1.4rem; margin-bottom:6px;">Como você está<br><em style="color:var(--blue-500);font-style:italic;">por dentro?</em></h2>
+      <p style="font-size:0.88rem;">Este espaço é seu. Não há resposta certa.</p>
+    </div>
+
+    <div class="emotion-section fade-up fade-up-2">
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;">Como você se sente agora?</div>
+      <div class="emotion-grid">
+        <button class="emotion-btn" onclick="selectEmotion(this)"><span class="emoji">😌</span><span>Calmo</span></button>
+        <button class="emotion-btn" onclick="selectEmotion(this)"><span class="emoji">😊</span><span>Feliz</span></button>
+        <button class="emotion-btn" onclick="selectEmotion(this)"><span class="emoji">😔</span><span>Triste</span></button>
+        <button class="emotion-btn selected" onclick="selectEmotion(this)"><span class="emoji">😶</span><span>Neutro</span></button>
+        <button class="emotion-btn" onclick="selectEmotion(this)"><span class="emoji">😤</span><span>Irritado</span></button>
+        <button class="emotion-btn" onclick="selectEmotion(this)"><span class="emoji">😰</span><span>Ansioso</span></button>
+        <button class="emotion-btn" onclick="selectEmotion(this)"><span class="emoji">😴</span><span>Cansado</span></button>
+        <button class="emotion-btn" onclick="selectEmotion(this)"><span class="emoji">🤩</span><span>Animado</span></button>
+      </div>
+    </div>
+
+    <div class="question-card fade-up fade-up-3">
+      <div class="question-number">Pergunta guiada · <span id="q-num">1</span> de 5</div>
+      <div class="question-text" id="question-text">O que aconteceu hoje que chamou sua atenção?</div>
+      <div class="question-nav">
+        <button class="q-btn" onclick="prevQuestion()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <button class="q-btn" onclick="nextQuestion()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <span class="q-progress-text">Toque para próxima →</span>
+      </div>
+    </div>
+
+    <div class="prompts-row fade-up fade-up-3">
+      <button class="prompt-chip" onclick="insertPrompt(this)">💭 Em geral...</button>
+      <button class="prompt-chip" onclick="insertPrompt(this)">🌿 Percebi que...</button>
+      <button class="prompt-chip" onclick="insertPrompt(this)">💙 Precisei de...</button>
+      <button class="prompt-chip" onclick="insertPrompt(this)">✨ Senti orgulho de...</button>
+      <button class="prompt-chip" onclick="insertPrompt(this)">🔮 Amanhã quero...</button>
+    </div>
+
+    <div class="writing-section fade-up fade-up-4">
+      <div class="writing-label">Espaço para seus pensamentos</div>
+      <div class="writing-area">
+        <textarea id="journal" placeholder="Escreva o que quiser, sem julgamentos. Este espaço é apenas seu..."></textarea>
+        <div class="word-count" id="word-count">0 palavras</div>
+      </div>
+    </div>
+
+    <div class="exercise-section fade-up fade-up-5">
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:14px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;">Exercícios de autoconhecimento</div>
+      <div class="exercise-card" onclick="openExercise('respiracao')">
+        <div class="ex-icon ex-blue">🌬️</div>
+        <div class="ex-info"><span class="ex-title">Respiração guiada</span><span class="ex-sub">Técnica 4-7-8 para acalmar</span></div>
+        <span class="ex-dur">4 min</span>
+      </div>
+      <div class="exercise-card" onclick="openExercise('gratidao')">
+        <div class="ex-icon ex-indigo">🙏</div>
+        <div class="ex-info"><span class="ex-title">Três gratidões</span><span class="ex-sub">O que de bom aconteceu hoje?</span></div>
+        <span class="ex-dur">3 min</span>
+      </div>
+      <div class="exercise-card" onclick="openExercise('corpo')">
+        <div class="ex-icon ex-teal">🧘</div>
+        <div class="ex-info"><span class="ex-title">Escaneamento corporal</span><span class="ex-sub">Conecte mente e corpo</span></div>
+        <span class="ex-dur">7 min</span>
+      </div>
+    </div>
+
+    <div class="save-row fade-up fade-up-5">
+      <button class="btn btn-primary btn-save" onclick="saveEntry()">💾 Salvar reflexão</button>
+      <button class="btn-clear" onclick="clearEntry()">Limpar</button>
+    </div>
+
+    <!-- Modal respiração -->
+    <div id="breath-overlay" style="display:none; position:fixed;inset:0;background:rgba(14,42,77,0.85);z-index:300;align-items:center;justify-content:center;">
+      <div style="background:var(--white);border-radius:var(--radius-xl);padding:40px 32px;max-width:340px;width:90%;text-align:center;">
+        <div id="breath-circle" style="width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,var(--blue-300),var(--blue-500));margin:0 auto 24px;display:flex;align-items:center;justify-content:center;color:white;font-size:0.9rem;font-weight:600;transition:transform 4s ease;">Inspire</div>
+        <h3 style="margin-bottom:8px;">Respiração 4-7-8</h3>
+        <p style="font-size:0.88rem;">Siga o ritmo do círculo.</p>
+        <button onclick="closeBreath()" class="btn btn-soft" style="margin-top:20px;width:100%;">Encerrar</button>
+      </div>
+    </div>
+
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="/home" class="nav-item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Início</a>
+    <a href="/autorreflexao" class="nav-item active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Refletir</a>
+    <a href="/organizacao" class="nav-item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Rotina</a>
+    <a href="/conteudos" class="nav-item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Conteúdos</a>
+    <a href="/adaptacao" class="nav-item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07M4.93 4.93a10 10 0 0 0 0 14.14M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>Adaptar</a>
+  </nav>
+</div>
+
+<script>
+const questions = [
+  "O que aconteceu hoje que chamou sua atenção?",
+  "Como seu corpo está se sentindo agora?",
+  "O que está ocupando mais espaço na sua mente?",
+  "Existe algo que você gostaria de ter feito diferente?",
+  "Que versão de si mesmo você quer ser amanhã?"
+];
+let qIdx = 0;
+
+function selectEmotion(btn) {
+  document.querySelectorAll('.emotion-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+function nextQuestion() {
+  qIdx = (qIdx + 1) % questions.length;
+  document.getElementById('question-text').textContent = questions[qIdx];
+  document.getElementById('q-num').textContent = qIdx + 1;
+}
+function prevQuestion() {
+  qIdx = (qIdx - 1 + questions.length) % questions.length;
+  document.getElementById('question-text').textContent = questions[qIdx];
+  document.getElementById('q-num').textContent = qIdx + 1;
+}
+function insertPrompt(btn) {
+  const ta = document.getElementById('journal');
+  const t = btn.textContent.replace(/^[\p{Emoji}\s]+/u,'').trim();
+  if (ta.value && !ta.value.endsWith('\n')) ta.value += '\n';
+  ta.value += t + ' ';
+  ta.focus();
+  updateWordCount();
+}
+const ta = document.getElementById('journal');
+ta.addEventListener('input', updateWordCount);
+function updateWordCount() {
+  const w = ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0;
+  document.getElementById('word-count').textContent = w + ' palavra' + (w !== 1 ? 's' : '');
+}
+function saveEntry() {
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#2368b0;color:white;padding:10px 22px;border-radius:99px;font-size:0.88rem;font-family:DM Sans,sans-serif;z-index:999;box-shadow:0 4px 16px rgba(35,104,176,0.4);';
+  el.textContent = '💙 Reflexão salva com carinho!';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2500);
+}
+function clearEntry() { document.getElementById('journal').value = ''; updateWordCount(); }
+function openExercise(type) {
+  if (type === 'respiracao') {
+    document.getElementById('breath-overlay').style.display = 'flex';
+    startBreathAnimation();
+  }
+}
+function closeBreath() { document.getElementById('breath-overlay').style.display = 'none'; clearTimeout(breathInterval); }
+let breathInterval;
+function startBreathAnimation() {
+  const circle = document.getElementById('breath-circle');
+  const phases = [
+    {text:'Inspire', scale:'scale(1.4)', dur:4000},
+    {text:'Segure',  scale:'scale(1.4)', dur:7000},
+    {text:'Expire',  scale:'scale(1)',   dur:8000},
+  ];
+  let i = 0;
+  function run() {
+    const ph = phases[i % phases.length];
+    circle.textContent = ph.text;
+    circle.style.transform = ph.scale;
+    i++;
+    breathInterval = setTimeout(run, ph.dur);
+  }
+  clearTimeout(breathInterval);
+  run();
+}
+</script>
+</body>
+</html>
